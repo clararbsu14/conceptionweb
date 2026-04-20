@@ -13,8 +13,7 @@ autoloc/
 ### Backend
 ```bash
 cd backend
-npm install
-npm start
+node index.js
 ```
 
 ### Frontend
