@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary:       #f97316;
+  --color-primary-dark:  #ea580c;
+  --color-primary-light: #fff7ed;
+  --color-dark:          #0f172a;
+  --color-muted:         #64748b;
+  --color-surface:       #f8fafc;
+  --color-border:        #e2e8f0;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #0f172a;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { min-height: 100dvh; display: flex; flex-direction: column; }
+
+/* Focus */
+:focus-visible { outline: 2px solid #f97316; outline-offset: 2px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #f97316; border-radius: 99px; }
+
+/* Selection */
+::selection { background: #fed7aa; color: #c2410c; }
+
+/* Print */
+@media print { .no-print { display: none !important; } }
+
+/* ── Utility classes ───────────────────────────── */
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; font-weight: 700; font-size: 14px;
+  padding: 12px 24px; border-radius: 12px; border: none;
+  cursor: pointer; transition: all .15s; text-decoration: none;
+  white-space: nowrap; line-height: 1;
+}
+
+.btn-primary {
+  background: #f97316; color: #fff;
+  box-shadow: 0 2px 12px rgba(249,115,22,.25);
+}
+.btn-primary:hover  { background: #ea580c; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(249,115,22,.35); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-outline {
+  background: #fff; color: #0f172a;
+  border: 1.5px solid #e2e8f0;
+}
+.btn-outline:hover { border-color: #f97316; color: #f97316; }
+
+.btn-ghost {
+  background: transparent; color: #64748b; padding: 8px 12px;
+}
+.btn-ghost:hover { background: #f8fafc; color: #0f172a; }
+
+/* Field */
+.label {
+  display: block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+  color: #94a3b8; margin-bottom: 6px;
+}
+
+.input {
+  display: block; width: 100%;
+  border: 1.5px solid #e2e8f0; border-radius: 10px;
+  padding: 10px 14px; font-size: 14px; color: #0f172a;
+  background: #f8fafc; transition: border-color .15s, background .15s;
+  line-height: 1;
+}
+.input::placeholder { color: #cbd5e1; }
+.input:focus { border-color: #f97316; background: #fff; outline: none; }
+
+/* Card */
+.card {
+  background: #fff; border: 1.5px solid #e2e8f0;
+  border-radius: 16px; overflow: hidden;
+}
+
+/* Section wrapper */
+.section { width: 100%; padding: 48px 0; }
+.section-sm { width: 100%; padding: 32px 0; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 640px)  { .container { padding: 0 24px; } }
+@media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+/* Badge */
+.badge {
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 700; padding: 3px 10px;
+  border-radius: 99px; line-height: 1.4;
+}
+
+/* ── Admin Dark Theme ─────────────────────────── */
+
+.admin-shell { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+/* Sidebar noise grain overlay */
+.admin-sidebar::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+.admin-sidebar > * { position: relative; z-index: 1; }
+
+/* Admin card hover effect */
+.admin-card {
+  background: #111827;
+  border: 1px solid #1F2937;
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.admin-card:hover {
+  border-color: #374151;
+}
+
+/* KPI card glow variants */
+.admin-card-green  { box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(34,197,94,0.06); }
+.admin-card-blue   { box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(59,130,246,0.06); }
+.admin-card-red    { box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(239,68,68,0.08); }
+.admin-card-orange { box-shadow: 0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.4), 0 0 24px rgba(249,115,22,0.06); }
+
+.admin-card-green:hover  { border-color: rgba(34,197,94,0.3); }
+.admin-card-blue:hover   { border-color: rgba(59,130,246,0.3); }
+.admin-card-red:hover    { border-color: rgba(239,68,68,0.3); }
+.admin-card-orange:hover { border-color: rgba(249,115,22,0.3); }
+
+/* Admin table */
+.admin-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.875rem; }
+.admin-table thead th {
+  padding: 12px 16px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748B;
+  border-bottom: 1px solid #1F2937;
+  text-align: left;
+}
+.admin-table tbody tr {
+  transition: background 0.15s;
+}
+.admin-table tbody tr:hover {
+  background: rgba(255,255,255,0.02) !important;
+}
+.admin-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(31,41,55,0.5);
+}
+.admin-table tbody tr:last-child td { border-bottom: none; }
+
+/* Progress bar shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.admin-progress-bar {
+  height: 6px;
+  border-radius: 99px;
+  background: #1F2937;
+  overflow: hidden;
+}
+.admin-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #F97316, #FB923C, #F97316);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Admin input */
+.admin-input {
+  background: #0B0D17;
+  border: 1px solid #1F2937;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #F1F5F9;
+  transition: border-color 0.15s;
+  outline: none;
+  width: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.admin-input::placeholder { color: #475569; }
+.admin-input:focus { border-color: #F97316; }
+
+/* Admin select */
+.admin-select {
+  background: #0B0D17;
+  border: 1px solid #1F2937;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #F1F5F9;
+  transition: border-color 0.15s;
+  outline: none;
+  width: 100%;
+  font-family: 'Inter', system-ui, sans-serif;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.admin-select:focus { border-color: #F97316; }
+
+/* Section label */
+.admin-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #94A3B8;
+}
+
+/* Admin button primary */
+.admin-btn-primary {
+  background: #F97316;
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', system-ui, sans-serif;
+  box-shadow: 0 2px 12px rgba(249,115,22,0.25);
+}
+.admin-btn-primary:hover {
+  background: #EA580C;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(249,115,22,0.35);
+}
+.admin-btn-primary:active { transform: translateY(0); }
+.admin-btn-primary:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+/* Admin button ghost */
+.admin-btn-ghost {
+  background: transparent;
+  color: #94A3B8;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid #1F2937;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+.admin-btn-ghost:hover { border-color: #374151; color: #CBD5E1; }
+
+/* Page transition */
+.admin-page-enter {
+  animation: adminFadeIn 0.25s ease-out;
+}
+@keyframes adminFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Admin scrollbar */
+.admin-shell ::-webkit-scrollbar { width: 4px; }
+.admin-shell ::-webkit-scrollbar-track { background: transparent; }
+.admin-shell ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 99px; }
+.admin-shell ::-webkit-scrollbar-thumb:hover { background: #374151; }
