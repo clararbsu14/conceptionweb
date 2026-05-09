@@ -1,7 +1,9 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import BottomNav from './components/BottomNav'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Client pages
@@ -20,9 +22,15 @@ import AdminVehiclesPage from './pages/admin/AdminVehiclesPage'
 import AdminBookingsPage from './pages/admin/AdminBookingsPage'
 import AdminFleetPage from './pages/admin/AdminFleetPage'
 import AdminAlertsPage from './pages/admin/AdminAlertsPage'
+import AdminSinistresPage from './pages/admin/AdminSinistresPage'
 
 // Client layout wrapper
 function ClientLayout({ children }) {
+  useEffect(() => {
+    document.body.classList.add('has-bottom-nav')
+    return () => document.body.classList.remove('has-bottom-nav')
+  }, [])
+
   return (
     <div className="flex flex-col min-h-dvh">
       <Navbar />
@@ -30,6 +38,7 @@ function ClientLayout({ children }) {
         {children}
       </main>
       <Footer />
+      <BottomNav />
     </div>
   )
 }
@@ -73,6 +82,7 @@ export default function App() {
             <Route path="vehicules" element={<AdminVehiclesPage />} />
             <Route path="reservations" element={<AdminBookingsPage />} />
             <Route path="flotte" element={<AdminFleetPage />} />
+            <Route path="sinistres" element={<AdminSinistresPage />} />
             <Route path="alertes" element={<AdminAlertsPage />} />
           </Route>
 

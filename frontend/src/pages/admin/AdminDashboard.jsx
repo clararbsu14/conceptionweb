@@ -50,17 +50,17 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-3 sm:space-y-5">
       {/* Header */}
       <div>
-        <h1 className="text-[1.75rem] font-bold text-white leading-tight">Tableau de bord</h1>
-        <p className="text-[0.875rem] mt-1" style={{ color: '#64748B' }}>
+        <h1 className="text-[1.5rem] sm:text-[1.75rem] font-bold text-white leading-tight">Tableau de bord</h1>
+        <p className="text-[0.8rem] sm:text-[0.875rem] mt-1" style={{ color: '#64748B' }}>
           {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
         </p>
       </div>
 
       {/* ── ROW 1: Primary KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {stats ? (
           <>
             <KpiCard label="Disponibles" value={stats.disponibles} total={stats.total_vehicules} color="green"
@@ -86,7 +86,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── ROW 2: Secondary KPIs ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {stats ? (
           <>
             <KpiCard label="Taux d'occupation" value={`${stats.taux_occupation}%`} color="blue"
@@ -119,33 +119,44 @@ export default function AdminDashboard() {
       </div>
 
       {/* ── ROW 3: Revenue Chart + Top Vehicles ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
         {/* Revenue Chart */}
-        <div className="lg:col-span-2 admin-card p-6" style={{ minWidth: 0 }}>
-          <div className="flex items-center justify-between mb-1">
-            <p className="admin-section-label">Revenus — 6 derniers mois</p>
-            {revChange !== null && (
-              <span className={`text-[12px] font-semibold px-2.5 py-1 rounded-full ${
-                revChange >= 0 ? 'text-green-400' : 'text-red-400'
-              }`} style={{ background: revChange >= 0 ? 'rgba(34,197,94,0.12)' : 'rgba(239,68,68,0.12)' }}>
-                {revChange >= 0 ? '+' : ''}{revChange}% vs mois préc.
-              </span>
-            )}
-          </div>
+        <div className="lg:col-span-2 admin-card p-5 sm:p-6" style={{ minWidth: 0 }}>
+          <p className="admin-section-label mb-3">Revenus — 6 derniers mois</p>
           {stats && (
-            <p className="text-[2rem] font-extrabold text-primary leading-none mb-5" style={{ letterSpacing: '-0.02em' }}>
-              {stats.revenus_mois?.toLocaleString('fr-FR')}
-              <span className="text-[1.25rem] ml-0.5">€</span>
-              <span className="text-[13px] font-medium ml-2" style={{ color: '#475569' }}>ce mois</span>
-            </p>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <p className="font-extrabold text-primary leading-none min-w-0"
+                style={{ letterSpacing: '-0.02em', fontSize: '1.4rem' }}>
+                {stats.revenus_mois?.toLocaleString('fr-FR')}
+                <span className="font-normal" style={{ fontSize: '0.75rem', color: '#64748B', marginLeft: 4 }}>€</span>
+                <span className="font-normal" style={{ fontSize: '0.75rem', color: '#64748B', marginLeft: 6 }}>ce mois</span>
+              </p>
+              {revChange !== null && (
+                <span
+                  className="font-semibold rounded-full shrink-0"
+                  style={{
+                    fontSize: '0.7rem',
+                    padding: '3px 8px',
+                    background: revChange >= 0 ? 'rgba(34,197,94,0.10)' : 'rgba(239,68,68,0.10)',
+                    color: revChange >= 0 ? '#22C55E' : '#EF4444',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {revChange >= 0 ? '+' : ''}{revChange}% vs mois préc.
+                </span>
+              )}
+            </div>
           )}
           {revenueChart ? (
-            <div style={{ width: '100%', minWidth: 0, minHeight: 0, overflow: 'hidden' }}>
-              <ResponsiveContainer width="100%" height={220} minWidth={0}>
-                <AreaChart data={revenueChart.map(d => ({
-                  ...d,
-                  label: MOIS_FR[d.mois.split('-')[1]] || d.mois,
-                }))}>
+            <div className="h-[160px] sm:h-[220px]" style={{ width: '100%', minWidth: 0, overflow: 'hidden' }}>
+              <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+                <AreaChart
+                  data={revenueChart.map(d => ({
+                    ...d,
+                    label: MOIS_FR[d.mois.split('-')[1]] || d.mois,
+                  }))}
+                  margin={{ top: 4, right: 0, left: 0, bottom: 0 }}
+                >
                   <defs>
                     <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#F97316" stopOpacity={0.3} />
@@ -155,7 +166,7 @@ export default function AdminDashboard() {
                   <XAxis
                     dataKey="label"
                     axisLine={false} tickLine={false}
-                    tick={{ fill: '#64748B', fontSize: 12, fontFamily: 'Inter' }}
+                    tick={{ fill: '#64748B', fontSize: 10, fontFamily: 'Inter' }}
                   />
                   <YAxis hide />
                   <Tooltip
@@ -185,21 +196,46 @@ export default function AdminDashboard() {
         </div>
 
         {/* Top Vehicles */}
-        <div className="admin-card p-6">
-          <p className="admin-section-label mb-5">Top véhicules loués</p>
+        <div className="admin-card p-5 sm:p-6">
+          <p className="admin-section-label mb-4 sm:mb-5">Top véhicules loués</p>
           {topVehicles ? (
             topVehicles.length > 0 ? (
-              <div className="space-y-4">
+              <div>
                 {(() => {
                   const maxLoc = Math.max(...topVehicles.map(v => v.nb_locations), 1)
                   return topVehicles.map((v, i) => (
-                    <div key={v.id || i}>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[13px] font-medium text-white">{v.marque} {v.modele}</span>
-                        <span className="text-[13px] font-bold text-primary">{v.nb_locations} loc.</span>
+                    <div
+                      key={v.id || i}
+                      className="first:pt-0 last:border-b-0"
+                      style={{ padding: '10px 0', borderBottom: '1px solid #1F2937' }}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span
+                          className="shrink-0 font-extrabold text-primary"
+                          style={{ fontSize: '0.9rem', width: 20, letterSpacing: '-0.02em' }}
+                        >
+                          {i + 1}
+                        </span>
+                        <span
+                          className="flex-1 min-w-0 truncate"
+                          style={{ fontSize: '0.85rem', fontWeight: 500, color: '#F1F5F9' }}
+                        >
+                          {v.marque} {v.modele}
+                        </span>
+                        <span
+                          className="shrink-0"
+                          style={{ fontSize: '0.7rem', color: '#F97316', fontWeight: 600, whiteSpace: 'nowrap' }}
+                        >
+                          {v.nb_locations} loc.
+                        </span>
                       </div>
-                      <div className="admin-progress-bar">
-                        <div className="admin-progress-fill" style={{ width: `${(v.nb_locations / maxLoc) * 100}%` }} />
+                      <div style={{ height: 3, background: '#1F2937', borderRadius: 100, overflow: 'hidden', marginTop: 4 }}>
+                        <div style={{
+                          height: '100%',
+                          width: `${(v.nb_locations / maxLoc) * 100}%`,
+                          background: '#F97316',
+                          borderRadius: 100,
+                        }} />
                       </div>
                     </div>
                   ))
@@ -218,7 +254,7 @@ export default function AdminDashboard() {
 
       {/* ── ROW 4: Fleet Overview ── */}
       {stats && (
-        <div className="admin-card p-6">
+        <div className="admin-card p-5 sm:p-6">
           <div className="flex justify-between items-center mb-5">
             <p className="admin-section-label">État de la flotte</p>
             <Link to="/admin/flotte" className="text-primary text-xs font-semibold hover:underline">
@@ -274,7 +310,7 @@ export default function AdminDashboard() {
       )}
 
       {/* ── ROW 5: Alerts ── */}
-      <div className="admin-card p-6">
+      <div className="admin-card p-5 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <p className="admin-section-label">Alertes rapides</p>
           <Link to="/admin/alertes" className="text-primary text-xs font-semibold hover:underline">
@@ -303,7 +339,7 @@ export default function AdminDashboard() {
 
       {/* ── ROW 6: Recent Reservations ── */}
       <div className="admin-card overflow-hidden">
-        <div className="flex justify-between items-center p-6 pb-0">
+        <div className="flex justify-between items-center p-5 sm:p-6 pb-0">
           <p className="admin-section-label">Réservations récentes</p>
           <Link to="/admin/reservations" className="text-primary text-xs font-semibold hover:underline">
             Voir tout →
@@ -311,41 +347,69 @@ export default function AdminDashboard() {
         </div>
         {recent ? (
           recent.length > 0 ? (
-            <div className="overflow-x-auto p-6 pt-4">
-              <table className="admin-table min-w-[500px]">
-                <thead>
-                  <tr>
-                    <th>Réf.</th>
-                    <th>Client</th>
-                    <th>Véhicule</th>
-                    <th>Dates</th>
-                    <th>Statut</th>
-                    <th className="text-right">Montant</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map(r => (
-                    <tr key={r.id}>
-                      <td className="font-mono" style={{ color: '#475569' }}>#{r.id}</td>
-                      <td className="font-medium text-white">{r.prenom} {r.nom}</td>
-                      <td style={{ color: '#CBD5E1' }}>{r.marque} {r.modele}</td>
-                      <td className="text-xs" style={{ color: '#64748B' }}>
-                        {r.date_depart ? new Date(r.date_depart).toLocaleDateString('fr-FR') : '—'} → {r.date_retour ? new Date(r.date_retour).toLocaleDateString('fr-FR') : '—'}
-                      </td>
-                      <td><StatusBadge status={r.statut} /></td>
-                      <td className="font-bold text-right text-primary">{r.montant_total ? `${Number(r.montant_total).toLocaleString('fr-FR')}€` : '—'}</td>
+            <>
+              {/* Desktop table */}
+              <div className="hidden md:block overflow-x-auto p-6 pt-4">
+                <table className="admin-table min-w-[500px]">
+                  <thead>
+                    <tr>
+                      <th>Réf.</th>
+                      <th>Client</th>
+                      <th>Véhicule</th>
+                      <th>Dates</th>
+                      <th>Statut</th>
+                      <th className="text-right">Montant</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {recent.map(r => (
+                      <tr key={r.id}>
+                        <td className="font-mono" style={{ color: '#475569' }}>#{r.id}</td>
+                        <td className="font-medium text-white">{r.prenom} {r.nom}</td>
+                        <td style={{ color: '#CBD5E1' }}>{r.marque} {r.modele}</td>
+                        <td className="text-xs" style={{ color: '#64748B' }}>
+                          {r.date_depart ? new Date(r.date_depart).toLocaleDateString('fr-FR') : '—'} → {r.date_retour ? new Date(r.date_retour).toLocaleDateString('fr-FR') : '—'}
+                        </td>
+                        <td><StatusBadge status={r.statut} /></td>
+                        <td className="font-bold text-right text-primary">{r.montant_total ? `${Number(r.montant_total).toLocaleString('fr-FR')}€` : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Mobile card list */}
+              <div className="md:hidden flex flex-col gap-3 p-5 pt-4">
+                {recent.map(r => (
+                  <Link key={r.id} to="/admin/reservations"
+                    className="block rounded-xl p-4 transition-colors"
+                    style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid #1F2937' }}>
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono text-[11px]" style={{ color: '#64748B' }}>#{r.id}</span>
+                      <span className="font-bold text-primary text-[14px]">
+                        {r.montant_total ? `${Number(r.montant_total).toLocaleString('fr-FR')}€` : '—'}
+                      </span>
+                    </div>
+                    <p className="font-semibold text-white text-[14px] leading-tight">{r.prenom} {r.nom}</p>
+                    <p className="text-[13px] text-primary mt-0.5">{r.marque} {r.modele}</p>
+                    <div className="flex items-center justify-between mt-2.5 gap-2">
+                      <span className="text-[11px]" style={{ color: '#64748B' }}>
+                        {r.date_depart ? new Date(r.date_depart).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—'}
+                        {' → '}
+                        {r.date_retour ? new Date(r.date_retour).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) : '—'}
+                      </span>
+                      <StatusBadge status={r.statut} />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
           ) : (
             <p className="text-center text-[13px] py-10" style={{ color: '#475569' }}>Aucune réservation</p>
           )
         ) : error.recent ? (
-          <div className="p-6"><ErrorInline /></div>
+          <div className="p-5 sm:p-6"><ErrorInline /></div>
         ) : (
-          <div className="p-6"><SkeletonTable /></div>
+          <div className="p-5 sm:p-6"><SkeletonTable /></div>
         )}
       </div>
     </div>
@@ -357,19 +421,59 @@ export default function AdminDashboard() {
 function KpiCard({ label, value, total, color, icon, iconBg, alert, subtitle }) {
   const colors = { green: '#22C55E', blue: '#3B82F6', red: '#EF4444', orange: '#F97316' }
   return (
-    <div className={`admin-card admin-card-${color} p-6`}
-      style={alert ? { borderColor: 'rgba(239,68,68,0.4)', boxShadow: '0 0 0 1px rgba(239,68,68,0.15), 0 0 30px rgba(239,68,68,0.1)' } : {}}>
-      <div className="flex items-start justify-between mb-4">
-        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: iconBg }}>
-          {icon}
-        </div>
-        {total != null && <span className="text-[11px] font-medium" style={{ color: '#475569' }}>/ {total}</span>}
+    <div className={`admin-card admin-card-${color} relative py-3.5 px-4 sm:p-6`}
+      style={Object.assign({ minHeight: 80 }, alert ? { borderColor: 'rgba(239,68,68,0.4)', boxShadow: '0 0 0 1px rgba(239,68,68,0.15), 0 0 30px rgba(239,68,68,0.1)' } : {})}>
+
+      {/* Icon top-left */}
+      <div className="rounded-md sm:rounded-xl flex items-center justify-center"
+        style={{ background: iconBg, width: 24, height: 24, opacity: 0.85 }}>
+        {icon}
       </div>
-      <p className="font-extrabold leading-none" style={{ fontSize: '2.5rem', color: colors[color], letterSpacing: '-0.02em' }}>
+
+      {/* Total in absolute top-right */}
+      {total != null && (
+        <span
+          className="absolute"
+          style={{ top: 10, right: 12, fontSize: '0.65rem', fontWeight: 500, color: '#475569' }}
+        >
+          / {total}
+        </span>
+      )}
+
+      {/* Big value */}
+      <p className="font-extrabold"
+        style={{
+          color: colors[color],
+          letterSpacing: '-0.02em',
+          fontSize: 'clamp(1.6rem, 6.5vw, 2.5rem)',
+          lineHeight: 1,
+          margin: '4px 0',
+        }}>
         {value ?? '—'}
       </p>
-      <p className="admin-section-label mt-3">{label}</p>
-      {subtitle && <p className="text-[11px] mt-1" style={{ color: '#475569' }}>{subtitle}</p>}
+
+      {/* Label — small, single-line ellipsis */}
+      <p
+        title={label}
+        style={{
+          fontSize: '0.6rem',
+          fontWeight: 500,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          color: '#94A3B8',
+          marginTop: 2,
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
+        {label}
+      </p>
+      {subtitle && (
+        <p className="hidden sm:block text-[11px] mt-1" style={{ color: '#475569' }}>
+          {subtitle}
+        </p>
+      )}
     </div>
   )
 }
@@ -391,12 +495,31 @@ function AlertRow({ alert: a }) {
         {s.icon}
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-[13px] font-semibold text-white leading-tight">{a.title}</p>
-        <p className="text-[12px] mt-0.5 leading-relaxed" style={{ color: '#94A3B8' }}>{a.message}</p>
+        <p className="text-[13px] font-semibold text-white leading-tight"
+          style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {a.title}
+        </p>
+        <p className="mt-0.5 leading-relaxed"
+          style={{
+            color: '#94A3B8',
+            fontSize: '0.75rem',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}>
+          {a.message}
+        </p>
       </div>
       {a.severity === 'high' && (
-        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 mt-1"
-          style={{ background: 'rgba(239,68,68,0.15)', color: '#F87171' }}>
+        <span className="font-bold rounded-full shrink-0 mt-1"
+          style={{
+            fontSize: '0.65rem',
+            padding: '2px 6px',
+            background: 'rgba(239,68,68,0.15)',
+            color: '#F87171',
+            letterSpacing: '0.04em',
+          }}>
           URGENT
         </span>
       )}

@@ -18,7 +18,37 @@ const SOCIAL = [
 
 export default function Footer() {
   return (
-    <footer style={{ background: '#060810', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+    <>
+      {/* ── Mobile minimal footer (app-style) ───────── */}
+      <footer className="md:hidden" style={{ background: '#F8FAFC', padding: '32px 16px 100px' }}>
+        <div className="flex flex-col items-center gap-4">
+          <img src={logo} alt="AUTOLOC'" style={{ width: 40, height: 40 }} />
+          <p style={{ color: '#94A3B8', fontSize: '0.75rem', fontWeight: 500 }}>
+            &copy; {new Date().getFullYear()} AUTOLOC&apos;
+          </p>
+          <div className="flex gap-3">
+            {SOCIAL.map(s => (
+              <a
+                key={s.label}
+                href="#"
+                aria-label={s.label}
+                className="tap-scale flex items-center justify-center transition-colors"
+                style={{
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: '#FFF', border: '1px solid #E2E8F0',
+                }}
+              >
+                <svg style={{ width: 15, height: 15, fill: '#94A3B8' }} viewBox="0 0 24 24">
+                  <path d={s.d} />
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      </footer>
+
+      {/* ── Desktop full footer ─────────────────────── */}
+      <footer className="hidden md:block" style={{ background: '#060810', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
       <div className="container" style={{ paddingTop: 80, paddingBottom: 40 }}>
 
         {/* ── Brand hero ─────────────────────────── */}
@@ -51,7 +81,7 @@ export default function Footer() {
 
         {/* ── Nav columns ────────────────────────── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
-          style={{ gap: 'clamp(32px, 5vw, 56px)', marginBottom: 48 }}>
+          style={{ gap: 48, marginBottom: 48 }}>
 
           {/* Véhicules */}
           <NavCol title="Véhicules" links={[
@@ -174,6 +204,7 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    </>
   )
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../api/axios'
+import PaymentForm from '../components/PaymentForm'
 
 const MOCK_VEHICLES = {
   1: { id: 1, marque: 'Renault', modele: 'Clio', categorie: 'voiture', prix_jour: 45, places: 5, transmission: 'Manuelle', carburant: 'Essence', statut: 'disponible' },
@@ -16,6 +17,7 @@ export default function ReservationPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [pendingBooking, setPendingBooking] = useState(null)
 
   const today = new Date().toISOString().split('T')[0]
 
@@ -85,8 +87,10 @@ export default function ReservationPage() {
         ...form,
         montant_total: totalPrice(),
       })
-      navigate(`/confirmation/${data.id || data.reservation_id}`, {
-        state: { reservation: data, vehicle }
+      setPendingBooking({
+        id: data.id || data.reservation_id,
+        amount: data.montant_total ?? totalPrice(),
+        raw: data,
       })
     } catch (err) {
       const msg = err.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.'
@@ -94,6 +98,12 @@ export default function ReservationPage() {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handlePaymentSuccess = () => {
+    navigate(`/confirmation/${pendingBooking.id}`, {
+      state: { reservation: pendingBooking.raw, vehicle, paid: true },
+    })
   }
 
   if (loading) {
@@ -107,44 +117,65 @@ export default function ReservationPage() {
   const jours = nbJours()
 
   return (
-    <div className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="flex-1 container py-8 pb-[140px] lg:pb-8">
       <h1 className="text-2xl font-black text-dark mb-2">Finaliser votre réservation</h1>
       <p className="text-gray-500 text-sm mb-6">Remplissez vos informations pour confirmer la réservation</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Form */}
+        {pendingBooking ? (
+          <section className="lg:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm p-5 space-y-4">
+            <div>
+              <h2 className="font-bold text-dark mb-1 flex items-center gap-2">
+                <span className="bg-primary text-white rounded-full flex items-center justify-center" style={{ width: 28, height: 28, fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 8px rgba(249,115,22,0.3)' }}>✓</span>
+                Réservation #{pendingBooking.id} créée
+              </h2>
+              <p className="text-sm text-gray-500">
+                Finalisez le paiement pour confirmer votre réservation. Vous recevrez votre facture par email.
+              </p>
+            </div>
+            <PaymentForm
+              bookingId={pendingBooking.id}
+              amount={pendingBooking.amount}
+              onSuccess={handlePaymentSuccess}
+            />
+          </section>
+        ) : (
         <form onSubmit={handleSubmit} className="lg:col-span-2 space-y-6">
           {/* Dates */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h2 className="font-bold text-dark mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary text-white rounded-full text-xs flex items-center justify-center font-black">1</span>
+            <h2 className="text-dark mb-4 flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 700 }}>
+              <span className="bg-primary text-white rounded-full flex items-center justify-center" style={{ width: 28, height: 28, fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 8px rgba(249,115,22,0.3)' }}>1</span>
               Dates de location
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Date & heure de départ *</label>
+                <label className="block mb-1.5" style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B' }}>Date & heure de départ *</label>
                 <div className="flex gap-2">
                   <input type="date" required min={today}
                     value={form.date_depart}
                     onChange={e => setForm(f => ({ ...f, date_depart: e.target.value }))}
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
+                    className="flex-1 text-sm focus:border-primary outline-none transition-colors"
+                    style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 16px' }} />
                   <input type="time"
                     value={form.heure_depart}
                     onChange={e => setForm(f => ({ ...f, heure_depart: e.target.value }))}
-                    className="w-24 border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-24 text-sm focus:border-primary outline-none transition-colors"
+                    style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 12px' }} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1.5">Date & heure de retour *</label>
+                <label className="block mb-1.5" style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B' }}>Date & heure de retour *</label>
                 <div className="flex gap-2">
                   <input type="date" required min={form.date_depart || today}
                     value={form.date_retour}
                     onChange={e => setForm(f => ({ ...f, date_retour: e.target.value }))}
-                    className="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
+                    className="flex-1 text-sm focus:border-primary outline-none transition-colors"
+                    style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 16px' }} />
                   <input type="time"
                     value={form.heure_retour}
                     onChange={e => setForm(f => ({ ...f, heure_retour: e.target.value }))}
-                    className="w-24 border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
+                    className="w-24 text-sm focus:border-primary outline-none transition-colors"
+                    style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 12px' }} />
                 </div>
               </div>
             </div>
@@ -157,8 +188,8 @@ export default function ReservationPage() {
 
           {/* Infos client */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h2 className="font-bold text-dark mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary text-white rounded-full text-xs flex items-center justify-center font-black">2</span>
+            <h2 className="text-dark mb-4 flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 700 }}>
+              <span className="bg-primary text-white rounded-full flex items-center justify-center" style={{ width: 28, height: 28, fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 8px rgba(249,115,22,0.3)' }}>2</span>
               Vos informations
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -175,38 +206,71 @@ export default function ReservationPage() {
 
           {/* Options */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h2 className="font-bold text-dark mb-4 flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary text-white rounded-full text-xs flex items-center justify-center font-black">3</span>
+            <h2 className="text-dark mb-4 flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 700 }}>
+              <span className="bg-primary text-white rounded-full flex items-center justify-center" style={{ width: 28, height: 28, fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 8px rgba(249,115,22,0.3)' }}>3</span>
               Options supplémentaires
             </h2>
             <div className="space-y-3">
-              {OPTIONS.map((opt) => (
-                <label key={opt.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg cursor-pointer hover:border-primary/40 hover:bg-primary-xlight transition-all">
-                  <div className="flex items-center gap-3">
-                    <input type="checkbox" checked={form.options.includes(opt.id)}
-                      onChange={() => toggleOption(opt.id)}
-                      className="w-4 h-4 accent-primary" />
-                    <div>
-                      <p className="text-sm font-semibold text-dark">{opt.label}</p>
-                      <p className="text-xs text-gray-400">{opt.desc}</p>
+              {OPTIONS.map((opt) => {
+                const checked = form.options.includes(opt.id)
+                return (
+                  <label
+                    key={opt.id}
+                    className="tap-scale flex items-center justify-between cursor-pointer transition-all"
+                    style={{
+                      padding: '14px 16px',
+                      border: `1.5px solid ${checked ? '#F97316' : '#E2E8F0'}`,
+                      borderRadius: 12,
+                      background: checked ? '#FFF7ED' : '#FFF',
+                    }}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        aria-hidden="true"
+                        className="shrink-0 inline-flex items-center justify-center"
+                        style={{
+                          width: 22, height: 22,
+                          borderRadius: 6,
+                          border: `1.5px solid ${checked ? '#F97316' : '#CBD5E1'}`,
+                          background: checked ? '#F97316' : '#FFF',
+                          transition: 'all .15s ease',
+                        }}
+                      >
+                        {checked && (
+                          <svg width="14" height="14" fill="none" stroke="white" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleOption(opt.id)}
+                        className="sr-only"
+                      />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-dark">{opt.label}</p>
+                        <p className="text-xs" style={{ color: '#94A3B8' }}>{opt.desc}</p>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-sm font-bold text-primary">+{opt.prix}€/j</span>
-                </label>
-              ))}
+                    <span className="shrink-0 ml-3 text-sm font-bold text-primary">+{opt.prix}€/j</span>
+                  </label>
+                )
+              })}
             </div>
           </section>
 
           {/* Commentaire */}
           <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h2 className="font-bold text-dark mb-3 flex items-center gap-2">
-              <span className="w-6 h-6 bg-primary text-white rounded-full text-xs flex items-center justify-center font-black">4</span>
+            <h2 className="text-dark mb-3 flex items-center gap-2" style={{ fontSize: '1rem', fontWeight: 700 }}>
+              <span className="bg-primary text-white rounded-full flex items-center justify-center" style={{ width: 28, height: 28, fontSize: '0.8rem', fontWeight: 700, boxShadow: '0 2px 8px rgba(249,115,22,0.3)' }}>4</span>
               Remarques (facultatif)
             </h2>
-            <textarea rows={3} placeholder="Informations complémentaires pour votre réservation..."
+            <textarea rows={3} placeholder="Informations complémentaires pour votre réservation…"
               value={form.commentaire}
               onChange={e => setForm(f => ({ ...f, commentaire: e.target.value }))}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm resize-none" />
+              className="w-full text-sm resize-none focus:border-primary outline-none transition-colors"
+              style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 16px' }} />
           </section>
 
           {error && (
@@ -215,11 +279,20 @@ export default function ReservationPage() {
             </div>
           )}
 
+          {/* Desktop inline CTA */}
           <button type="submit" disabled={submitting}
-            className="w-full bg-primary hover:bg-primary-dark disabled:opacity-60 text-white font-bold py-3.5 rounded-xl text-sm shadow-sm">
-            {submitting ? 'Confirmation en cours...' : 'Confirmer la réservation'}
+            className="hidden lg:block w-full bg-primary hover:bg-primary-dark disabled:opacity-60 text-white font-bold py-3.5 rounded-xl text-sm shadow-sm transition-all">
+            {submitting ? 'Création en cours…' : 'Continuer vers le paiement'}
+          </button>
+
+          {/* Mobile fixed CTA — sits above the 64px bottom nav */}
+          <button type="submit" disabled={submitting}
+            className="lg:hidden fixed left-0 right-0 z-30 bg-primary disabled:opacity-60 text-white font-bold text-[0.95rem] flex items-center justify-center transition-all"
+            style={{ bottom: 64, height: 56, borderRadius: 0, boxShadow: '0 -4px 16px rgba(0,0,0,0.08)' }}>
+            {submitting ? 'Création en cours…' : 'Continuer vers le paiement'}
           </button>
         </form>
+        )}
 
         {/* Summary */}
         <aside className="space-y-4">
@@ -262,8 +335,19 @@ export default function ReservationPage() {
 function Field({ label, ...props }) {
   return (
     <div>
-      <label className="block text-xs font-semibold text-gray-500 mb-1.5">{label}</label>
-      <input {...props} className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
+      <label className="block mb-1.5" style={{ fontSize: '0.8rem', fontWeight: 600, color: '#64748B' }}>{label}</label>
+      <input
+        {...props}
+        className="w-full text-sm transition-colors"
+        style={{
+          border: '1.5px solid #E2E8F0',
+          borderRadius: 12,
+          padding: '14px 16px',
+          outline: 'none',
+        }}
+        onFocus={e => { e.target.style.borderColor = '#F97316'; props.onFocus?.(e) }}
+        onBlur={e => { e.target.style.borderColor = '#E2E8F0'; props.onBlur?.(e) }}
+      />
     </div>
   )
 }

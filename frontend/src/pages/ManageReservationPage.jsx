@@ -65,40 +65,86 @@ export default function ManageReservationPage() {
   const canEdit = reservation && ['confirme', 'reserve'].includes(reservation.statut)
 
   return (
-    <div className="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 w-full">
-      <h1 className="text-2xl font-black text-dark mb-1">Ma réservation</h1>
-      <p className="text-gray-500 text-sm mb-8">Gérez votre réservation : voir, modifier, annuler, imprimer votre facture</p>
-
-      {/* Search */}
+    <div
+      className="flex-1 container w-full flex flex-col"
+      style={{ paddingTop: 24, paddingBottom: 96 }}
+    >
+      <div
+        className={`mx-auto w-full ${reservation ? 'max-w-2xl' : 'max-w-md flex-1 flex flex-col justify-center'}`}
+      >
       {!reservation && (
-        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-          <h2 className="font-bold text-dark mb-4">Retrouver ma réservation</h2>
-          <form onSubmit={search} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Adresse email</label>
-              <input type="email" required placeholder="votremail@exemple.fr"
-                value={searchForm.email}
-                onChange={e => setSearchForm(f => ({ ...f, email: e.target.value }))}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
+        <>
+          {/* Hero illustration */}
+          <div className="text-center" style={{ marginBottom: 24 }}>
+            <div
+              className="inline-flex items-center justify-center mx-auto"
+              style={{
+                width: 80, height: 80,
+                borderRadius: 24,
+                background: '#FFF7ED',
+                boxShadow: '0 4px 20px rgba(249,115,22,0.15)',
+              }}
+            >
+              <svg width="40" height="40" fill="none" stroke="#F97316" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0zM3 17V9.5L5 5h14l2 4.5V17M7 9h10" />
+              </svg>
             </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 mb-1.5">Numéro de réservation</label>
-              <input type="text" required placeholder="ex: 1042"
-                value={searchForm.reference}
-                onChange={e => setSearchForm(f => ({ ...f, reference: e.target.value }))}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm" />
-            </div>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
-                {error}
+            <h1 className="text-dark" style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: 20, letterSpacing: '-0.02em' }}>
+              Ma réservation
+            </h1>
+            <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: 6, lineHeight: 1.5 }}>
+              Entrez votre email et numéro de réservation pour accéder à vos détails.
+            </p>
+          </div>
+
+          {/* Search card */}
+          <div
+            style={{
+              background: '#FFF',
+              borderRadius: 20,
+              padding: 24,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+              border: '1px solid #F1F5F9',
+            }}
+          >
+            <form onSubmit={search} className="space-y-4">
+              <div>
+                <label className="block mb-1.5" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A' }}>Adresse email</label>
+                <input type="email" required placeholder="votremail@exemple.fr"
+                  value={searchForm.email}
+                  onChange={e => setSearchForm(f => ({ ...f, email: e.target.value }))}
+                  className="w-full text-sm focus:border-primary outline-none transition-colors"
+                  style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 16px' }} />
               </div>
-            )}
-            <button type="submit" disabled={loading}
-              className="w-full bg-primary hover:bg-primary-dark disabled:opacity-60 text-white font-bold py-3 rounded-lg text-sm">
-              {loading ? 'Recherche...' : 'Rechercher ma réservation'}
-            </button>
-          </form>
-        </div>
+              <div>
+                <label className="block mb-1.5" style={{ fontSize: '0.875rem', fontWeight: 600, color: '#0F172A' }}>Numéro de réservation</label>
+                <input type="text" required placeholder="ex : 1042"
+                  value={searchForm.reference}
+                  onChange={e => setSearchForm(f => ({ ...f, reference: e.target.value }))}
+                  className="w-full text-sm focus:border-primary outline-none transition-colors"
+                  style={{ border: '1.5px solid #E2E8F0', borderRadius: 12, padding: '14px 16px' }} />
+              </div>
+              {error && (
+                <div className="text-sm rounded-xl px-4 py-3"
+                  style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#B91C1C' }}>
+                  {error}
+                </div>
+              )}
+              <button type="submit" disabled={loading}
+                className="tap-scale w-full bg-primary hover:bg-primary-dark disabled:opacity-60 text-white font-bold transition-all flex items-center justify-center"
+                style={{ height: 52, borderRadius: 100, fontSize: '0.95rem', boxShadow: '0 6px 20px rgba(249,115,22,0.3)' }}>
+                {loading ? 'Recherche…' : 'Rechercher ma réservation'}
+              </button>
+            </form>
+          </div>
+        </>
+      )}
+
+      {reservation && (
+        <>
+          <h1 className="text-2xl font-black text-dark mb-1">Ma réservation</h1>
+          <p className="text-gray-500 text-sm mb-8">Gérez votre réservation : voir, modifier, annuler, imprimer votre facture</p>
+        </>
       )}
 
       {/* Reservation details */}
@@ -210,6 +256,7 @@ export default function ManageReservationPage() {
           </button>
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -40,7 +40,8 @@ export default function InvoicePage() {
     : 0
 
   return (
-    <div className="flex-1 max-w-2xl mx-auto px-4 sm:px-6 py-8 w-full">
+    <div className="flex-1 container py-8 w-full">
+      <div className="max-w-2xl mx-auto">
       {/* Print button */}
       <div className="flex justify-between items-center mb-6 no-print">
         <Link to="/ma-reservation" className="text-sm text-gray-500 hover:text-primary flex items-center gap-1">
@@ -152,6 +153,7 @@ export default function InvoicePage() {
           <p>AUTOLOC — 12 Rue des Voitures, 75001 Paris — SIRET 123 456 789 00010 — TVA FR12345678900</p>
           <p>Merci pour votre confiance. Le confort notre atout.</p>
         </div>
+      </div>
       </div>
     </div>
   )

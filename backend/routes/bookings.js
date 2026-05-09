@@ -2,6 +2,34 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const auth = require('../middleware/auth');
+const { sendInvoiceEmail, sendBookingConfirmationEmail } = require('../services/emailService');
+
+// Fetch booking + client + vehicle as separate objects for the email service
+async function loadBookingForEmail(bookingId) {
+  const [rows] = await db.query(
+    `SELECT b.*, v.marque, v.modele, v.immatriculation, v.categorie, v.prix_jour,
+            u.nom, u.prenom, u.email, u.telephone
+     FROM bookings b
+     LEFT JOIN vehicles v ON v.id = b.vehicle_id
+     LEFT JOIN users u    ON u.id = b.client_id
+     WHERE b.id = ?`,
+    [bookingId]
+  );
+  if (!rows.length) return null;
+  const r = rows[0];
+  return {
+    booking: {
+      id: r.id,
+      date_debut: r.date_debut,
+      date_fin_prevue: r.date_fin_prevue,
+      prix_total: r.prix_total,
+      caution_percue: r.caution_percue ?? 0,
+      statut: r.statut,
+    },
+    client: { nom: r.nom, prenom: r.prenom, email: r.email, telephone: r.telephone },
+    vehicle: { marque: r.marque, modele: r.modele, immatriculation: r.immatriculation, categorie: r.categorie, prix_jour: r.prix_jour },
+  };
+}
 
 // GET /api/bookings — liste (admin) ou filtres
 router.get('/', auth(['admin', 'gerant']), async (req, res) => {
@@ -88,7 +116,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST /api/bookings — créer une réservation (public)
+// POST /api/bookings — créer une réservation en attente de paiement (public)
 router.post('/', async (req, res) => {
   const conn = await db.getConnection();
   try {
@@ -154,17 +182,14 @@ router.post('/', async (req, res) => {
     const [vRow] = await conn.query('SELECT prix_jour FROM vehicles WHERE id = ?', [finalVehicleId]);
     const total = montant_total || (vRow[0].prix_jour * jours);
 
-    // Insert booking
+    // Insert booking — status pending until Stripe webhook confirms payment
     const [result] = await conn.query(
       `INSERT INTO bookings
-       (client_id, vehicle_id, date_debut, date_fin_prevue, statut, prix_total, notes)
-       VALUES (?, ?, ?, ?, 'confirmee', ?, ?)`,
+       (client_id, vehicle_id, date_debut, date_fin_prevue, statut, paiement_statut, prix_total, notes)
+       VALUES (?, ?, ?, ?, 'en_attente', 'en_attente', ?, ?)`,
       [clientId, finalVehicleId, date_depart, date_retour, total,
        commentaire || null]
     );
-
-    // Mark vehicle as reserved
-    await conn.query("UPDATE vehicles SET statut = 'loue' WHERE id = ?", [finalVehicleId]);
 
     await conn.commit();
 
@@ -173,11 +198,12 @@ router.post('/', async (req, res) => {
       vehicle_id: finalVehicleId,
       usedSimilar,
       montant_total: total,
-      statut: 'confirmee',
+      statut: 'en_attente',
+      paiement_statut: 'en_attente',
     });
   } catch (err) {
     await conn.rollback();
-    console.error(err);
+    console.error('POST /api/bookings error:', err);
     res.status(500).json({ message: 'Erreur serveur' });
   } finally {
     conn.release();
@@ -218,6 +244,13 @@ router.patch('/:id', async (req, res) => {
 
     const [updated] = await db.query('SELECT * FROM bookings WHERE id = ?', [req.params.id]);
     res.json(updated[0]);
+
+    // Send invoice when booking is completed (best-effort, non-blocking)
+    if (statut === 'terminee') {
+      loadBookingForEmail(req.params.id)
+        .then(data => data && sendInvoiceEmail(data.booking, data.client, data.vehicle))
+        .catch(err => console.error('[email] post-terminee lookup failed:', err.message));
+    }
   } catch (err) {
     res.status(500).json({ message: 'Erreur serveur' });
   }
@@ -239,6 +272,22 @@ router.patch('/:id/cancel', async (req, res) => {
 
     res.json({ message: 'Réservation annulée', id: r.id });
   } catch (err) {
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// POST /api/admin/bookings/:id/send-invoice — manual resend (admin)
+router.post('/:id/send-invoice', auth(['admin', 'gerant']), async (req, res) => {
+  try {
+    const data = await loadBookingForEmail(req.params.id);
+    if (!data) return res.status(404).json({ message: 'Réservation introuvable' });
+    if (!data.client.email) return res.status(400).json({ message: 'Aucune adresse email associée à ce client.' });
+
+    const ok = await sendInvoiceEmail(data.booking, data.client, data.vehicle);
+    if (!ok) return res.status(502).json({ success: false, message: "Erreur d'envoi de l'email." });
+    res.json({ success: true, message: `Facture envoyée à ${data.client.email}` });
+  } catch (err) {
+    console.error('POST /send-invoice error:', err);
     res.status(500).json({ message: 'Erreur serveur' });
   }
 });

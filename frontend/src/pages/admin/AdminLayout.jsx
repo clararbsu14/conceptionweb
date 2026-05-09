@@ -7,6 +7,7 @@ const NAV = [
   { to: '/admin/flotte',       label: 'Flotte',          icon: <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg> },
   { to: '/admin/vehicules',    label: 'Véhicules',       icon: <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0H21M3.375 14.25h-.375a3 3 0 0 1-3-3V8.25m19.5 9.75V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v11.25" /></svg> },
   { to: '/admin/reservations', label: 'Réservations',    icon: <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg> },
+  { to: '/admin/sinistres',    label: 'Sinistres',       icon: <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg> },
   { to: '/admin/alertes',      label: 'Alertes',         icon: <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /></svg> },
 ]
 
@@ -116,19 +117,24 @@ export default function AdminLayout() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0" style={{ background: '#0B0D17' }}>
         {/* Top bar mobile */}
-        <div className="lg:hidden flex items-center gap-3 px-4 py-3 sticky top-0 z-20"
-          style={{ background: 'rgba(11,13,23,0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1F2937' }}>
-          <button onClick={() => setSideOpen(true)} className="p-1.5 rounded-lg transition-colors" style={{ color: '#94A3B8' }}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        <div className="lg:hidden flex items-center gap-3 px-4 py-2 sticky top-0 z-20"
+          style={{ background: 'rgba(11,13,23,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #1F2937', minHeight: 56 }}>
+          <button
+            onClick={() => setSideOpen(true)}
+            aria-label="Ouvrir le menu"
+            className="rounded-lg transition-colors"
+            style={{ padding: 8, color: '#FFF' }}
+          >
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <path d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           <span className="font-bold text-white text-sm tracking-tight">AUTOLOC</span>
           <span className="text-primary text-[10px] font-semibold tracking-widest uppercase">Admin</span>
         </div>
 
-        {/* Page content */}
-        <main className="flex-1 overflow-auto p-5 sm:p-6 lg:p-8 admin-page-enter">
+        {/* Page content — mobile: tight top, comfortable bottom for clearance */}
+        <main className="flex-1 overflow-auto admin-page-enter pt-3 px-4 pb-20 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>
